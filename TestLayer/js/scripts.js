@@ -2,16 +2,10 @@ let defaultEndpoint = 'https://swapi.dev/api/planets/';
 
 let heartIconText = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16"><path d="M8 2.748l-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/></svg>';
 
-let likes = {"AnakinSkywalker": false,
-  "BeruWhitesun lars": false,
-  "BiggsDarklighter": false,
-  "C-3PO": false,
-  "ClieggLars": false,
-  "DarthVader": false,
-  "LukeSkywalker": false,
-  "OwenLars": false,
-  "R5-D4": false,
-  "ShmiSkywalker": false};
+let likes = {};
+
+let selectedShips = {};
+
 loadEndpoint(defaultEndpoint);
 
 function loadEndpoint(endpoint){
@@ -147,6 +141,51 @@ function createModal(elements, planet){
   return innerAccordion;
 }
 
+function createSelectItem(person, elementToAppend){
+  const selectItem = document.createElement('select')
+  selectItem.setAttribute('class', "select-max-width")
+  selectItem.onchange = function(){
+    selectedShips[this.value] = true;
+    localStorage.setItem('selectedShips', JSON.stringify(selectedShips));
+  }
+  person.starships.forEach((starship) => {
+    var idShip = person.name.replace(/\s/g, "") + starship.replace(/\s/g, "");
+    selectedShips[idShip] = false;
+    createOptionsItem(starship, selectItem, idShip);
+  });
+
+  elementToAppend.appendChild(selectItem);
+
+}
+
+function createOptionsItem(starship, selectItem, idShip){
+  let starshipRequest = new XMLHttpRequest()
+  
+  starshipRequest.open('GET', starship.replace('http','https'), true);
+  starshipRequest.onload = function () {
+    
+    var data = JSON.parse(this.response)
+
+    if (starshipRequest.status >= 200 && starshipRequest.status < 400) {
+      const optionInnerSelect = document.createElement('option')
+      optionInnerSelect.setAttribute('value', idShip)
+      optionInnerSelect.textContent = data.name;
+      if(localStorage.getItem('selectedShips')){
+        var retrievedObject = localStorage.getItem('selectedShips');
+        selectedShips = retrievedObject;
+      }
+
+
+      if(selectedShips[idShip] == true){
+        optionInnerSelect.setAttribute('selected', 'selected');
+      }
+
+      selectItem.appendChild(optionInnerSelect);
+    }
+  }
+  starshipRequest.send()
+
+}
 
 function createAccordionItem(people, planet, planetAccordion){
   let peopleRequest = new XMLHttpRequest()
@@ -170,11 +209,12 @@ function createAccordionItem(people, planet, planetAccordion){
       modalDiv.appendChild(innerImg)
 
       const innerDiv2 = document.createElement('div')
-      innerDiv2.setAttribute('class', 'card-body')
+      innerDiv2.setAttribute('class', 'card-body text-center')
       modalDiv.appendChild(innerDiv2)
 
       const innerDiv3 = document.createElement('div')
       innerDiv3.setAttribute('class', ' justify-content-between align-items-center')
+      innerDiv3.setAttribute('id', 'personDescription')
       innerDiv2.appendChild(innerDiv3)
 
       const innerSmall = document.createElement('small')
@@ -183,11 +223,10 @@ function createAccordionItem(people, planet, planetAccordion){
       innerDiv3.appendChild(innerSmall)
 
 
-      if(Math.round(Math.random()) == 1){
         const heartDiv = document.createElement('div')
           let idName = data.name.replace(' ','')
           heartDiv.setAttribute('id', idName);
-          // likes[idName] = false;
+          heartDiv.setAttribute('class', "text-center m-3");
           if(likes[idName] == true){
             heartDiv.setAttribute('class', 'activeHeart text-center m-3');
           }else if(likes[idName] == false){
@@ -206,64 +245,6 @@ function createAccordionItem(people, planet, planetAccordion){
 
           heartDiv.innerHTML = heartIconText;
           innerDiv3.appendChild(heartDiv);
-      }else{
-        var statusChanged = false;
-        const innerDiv2 = document.createElement('form')
-        innerDiv2.setAttribute('class', 'text-center mt-3')
-
-        let idName = data.name.replace(' ','')
-        // likes[idName] = false;
-        const innerSelect = document.createElement('select')
-        innerSelect.setAttribute('name', 'like')
-        innerSelect.setAttribute('id', idName)
-        innerSelect.onchange = function(e){
-
-          statusChanged = !statusChanged;
-        }
-
-        const innerSelectTrueOption = document.createElement('option')
-        innerSelectTrueOption.setAttribute('value', 'true')
-        innerSelectTrueOption.textContent = 'favorito'
-
-        const innerSelectFalseOption = document.createElement('option')
-        innerSelectFalseOption.setAttribute('value', 'false')
-        innerSelectFalseOption.textContent = 'no favorito'
-        
-        if(likes[idName] == true){
-          innerSelectTrueOption.setAttribute('selected', 'selected');
-        }else{
-          innerSelectFalseOption.setAttribute('selected', 'selected');
-        }
-        innerSelect.appendChild(innerSelectFalseOption)
-        innerSelect.appendChild(innerSelectTrueOption)
-
-        const innerSubmit = document.createElement('input')
-        innerSubmit.setAttribute('value', 'Actualizar')
-        innerSubmit.setAttribute('type', 'submit')
-        innerSubmit.setAttribute('class', 'mt-2 btn update-button btn-sm btn-outline-dark')
-
-        innerDiv2.onsubmit = function(e){
-          e.preventDefault();
-
-         if(statusChanged == true){
-              likes[idName]  = !likes[idName];
-
-              if( likes[idName] == true){
-                alert("Ahora SI es favorito");   
-              }else if (likes[idName] == false){
-                alert("Ahora NO es favorito");   
-              }
-
-              statusChanged = false;
-            }
-        }
-
-        innerDiv2.appendChild(innerSelect)
-        innerDiv2.appendChild(innerSubmit)
-        innerDiv3.appendChild(innerDiv2);
-
-
-      }
 
       const colDiv = document.createElement('div')
       colDiv.setAttribute('class', 'col-md-4')
@@ -272,6 +253,10 @@ function createAccordionItem(people, planet, planetAccordion){
 
 
       planetAccordion.appendChild(colDiv);
+      if(data.starships != null && data.starships != undefined  && Object.keys(data.starships).length !=0){
+        createSelectItem(data,innerDiv3 );
+      }
+
     }
 
   }

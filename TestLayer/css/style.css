@@ -50,8 +50,7 @@ footer p {
     background: black url('./../assets/backgrounds/stars.jpg') no-repeat fixed center;
 }
 
-.resize-img {height: 200px;}
-
+.resize-img {object-fit: cover; object-position: top; max-height: 200px;}
 
 .modal-header {
     background: black url('./../assets/images/modal-header-image.png') no-repeat fixed center;
@@ -69,3 +68,6 @@ footer p {
 .modal-dialog{
     max-width: 700px !important;
 }
+
+.select-max-width{ max-width: 150px;}
+
