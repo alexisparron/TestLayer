@@ -65,3 +65,7 @@ footer p {
 .update-button{
     background-color: #FFE81F !important
 }
+
+.modal-dialog{
+    max-width: 700px !important;
+}
