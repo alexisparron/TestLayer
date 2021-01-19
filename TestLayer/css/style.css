@@ -69,5 +69,7 @@ footer p {
     max-width: 700px !important;
 }
 
-.select-max-width{ max-width: 150px;}
+.select-max-width{ max-width: 150px; padding:5px; border-color: black; background: transparent;}
+
+.modal-body .card{ height:350px}
 
