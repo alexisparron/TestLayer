@@ -141,15 +141,28 @@ function createModal(elements, planet){
   return innerAccordion;
 }
 
-function createSelectItem(person, elementToAppend){
-  const selectItem = document.createElement('select')
+function createSelectItem(person,planet, elementToAppend){
+
+const selectItem = document.createElement('select')
   selectItem.setAttribute('class', "select-max-width")
   selectItem.onchange = function(){
     selectedShips[this.value] = true;
-    localStorage.setItem('selectedShips', JSON.stringify(selectedShips));
+
+    if(selectedShips != null && selectedShips != undefined){
+      Object.keys(selectedShips).forEach((ship) => {
+          if(ship.includes(planet.replace(/\s/g, "")) && ship.includes(person.name.replace(/\s/g, "")) && selectedShips[ship] == true && ship != this.value){
+            selectedShips[ship] = false;
+          }
+        });
+    }
+    
+
+    localStorage.setItem('selectedShipLS', JSON.stringify(selectedShips));
   }
+
   person.starships.forEach((starship) => {
-    var idShip = person.name.replace(/\s/g, "") + starship.replace(/\s/g, "");
+    var idShip = planet.replace(/\s/g, "") + person.name.replace(/\s/g, "") + starship.replace(/\s/g, "");
+    idShip.replace("\\","");
     selectedShips[idShip] = false;
     createOptionsItem(starship, selectItem, idShip);
   });
@@ -160,7 +173,7 @@ function createSelectItem(person, elementToAppend){
 
 function createOptionsItem(starship, selectItem, idShip){
   let starshipRequest = new XMLHttpRequest()
-  
+
   starshipRequest.open('GET', starship.replace('http','https'), true);
   starshipRequest.onload = function () {
     
@@ -170,12 +183,7 @@ function createOptionsItem(starship, selectItem, idShip){
       const optionInnerSelect = document.createElement('option')
       optionInnerSelect.setAttribute('value', idShip)
       optionInnerSelect.textContent = data.name;
-      if(localStorage.getItem('selectedShips')){
-        var retrievedObject = localStorage.getItem('selectedShips');
-        selectedShips = retrievedObject;
-      }
-
-
+      
       if(selectedShips[idShip] == true){
         optionInnerSelect.setAttribute('selected', 'selected');
       }
@@ -253,8 +261,11 @@ function createAccordionItem(people, planet, planetAccordion){
 
 
       planetAccordion.appendChild(colDiv);
+      if(localStorage.getItem('selectedShipLS')){
+        selectedShips = JSON.parse(localStorage.getItem('selectedShipLS'));
+      }
       if(data.starships != null && data.starships != undefined  && Object.keys(data.starships).length !=0){
-        createSelectItem(data,innerDiv3 );
+        createSelectItem(data, planet,innerDiv3 );
       }
 
     }
@@ -265,6 +276,14 @@ function createAccordionItem(people, planet, planetAccordion){
 
   return modalDiv;
 }
+
+window.onbeforeunload = function (e) {
+  window.onunload = function () {
+    localStorage.removeItem('selectedShipLS')
+
+  }
+  return undefined;
+};
 
 
 
