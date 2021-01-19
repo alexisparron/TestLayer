@@ -1,6 +1,6 @@
 
 body{
-    background: black url('./../assets/backgrounds/stars.jpg') no-repeat fixed center;
+    background: black url('./../assets/backgrounds/stars.jpg') fixed center;
 }
 
 :root {
@@ -38,6 +38,7 @@ footer {
   
 footer p {
     margin-bottom: .25rem;
+    width: 10em !important;
 }
   
 .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
@@ -72,4 +73,7 @@ footer p {
 .select-max-width{ max-width: 150px; padding:5px; border-color: black; background: transparent;}
 
 .modal-body .card{ height:350px}
+
+
+footer a{ color: #FFE81F}
 
