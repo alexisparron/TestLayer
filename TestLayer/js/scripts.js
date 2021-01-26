@@ -77,7 +77,7 @@ function loadEndpoint(endpoint){
         innerButton.onclick = function(event){
           setTimeout(
             function(){createModal( planet.residents, planet.name)}
-            , (Math.floor(Math.random()*5) + 1 * 1500));
+            , (Math.floor(Math.random()*15) + 1) * 1000);
         };
         innerDiv4.appendChild(innerButton);
 
